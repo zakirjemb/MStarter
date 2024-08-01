@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit,SimpleChanges } from '@angular/core';
 //@ts-ignore
 declare var google;
 
@@ -10,19 +10,18 @@ declare var google;
   styleUrl: './m-map.component.css'
 })
 export class MMapComponent implements OnInit {
-  @Input() zoomLevel: number = 16; 
-  @Input() lat: number = 0; 
-  @Input() lng: number = 0; 
+  @Input() initialZoomLevel: number = 8; 
+  @Input() initialLat: number = 0; 
+  @Input() initialLng: number = 0; 
   @Output() mapInstance: EventEmitter<any> = new EventEmitter();
 
   map: any;
 
-  ngOnInit() {
-    if (this.lat === 0 && this.lng === 0) {
+  ngOnInit(){
+    if (this.initialLat === 0 && this.initialLng === 0) 
       this.getLocation();
-    } else {
-      this.initMap();
-    }
+    else 
+      this.initMap(); 
   }
 
   async initMap() {
@@ -30,8 +29,8 @@ export class MMapComponent implements OnInit {
  
     this.map = new Map(document.getElementById("map"),
       {
-        zoom:16,
-        center: {lat: this.lat, lng: this.lng},
+        zoom:   this.initialZoomLevel,
+        center: {lat: this.initialLat, lng: this.initialLng},
         disableDoubleClickZoom: true,
         mapId: "Demo Map"
       }
@@ -40,9 +39,14 @@ export class MMapComponent implements OnInit {
   }
   getLocation(){
     navigator.geolocation.getCurrentPosition((data)=>{
-      this.lat = data.coords.latitude;
-      this.lng = data.coords.longitude;
+      this.initialLat = data.coords.latitude;
+      this.initialLng = data.coords.longitude;
       this.initMap();
     });
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+      this.initMap();
+  }
+  
 }
