@@ -10,10 +10,12 @@
   margin: 20px auto;
   padding: 30px;
   position: relative;
-  font-family: Quicksand;
+  font-size: 20px;
+  font-weight: bolder;
+  color: rgb(12,35,64);
 }
 .normal {
-  border: 5px solid #ebebeb;
+  border: 2px solid rgb(12,35,64);
   box-shadow: 0 0 10px 2px #ebebeb;
 }
 
@@ -21,6 +23,7 @@
   border:5px solid #a8f0c6;
   box-shadow: 0 0 10px 2px #a8f0c6;
 }
+
 
 .error {
   border:5px solid #f7a7a3;

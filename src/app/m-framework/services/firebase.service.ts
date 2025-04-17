@@ -74,7 +74,7 @@ export class FirebaseService {
   async getList(path: string){
     const dblist = await get(ref(this.db, path));
     let locallist: any[] = [];
-    dblist.forEach( item =>{locallist.push(item.val());});
+    dblist.forEach( (item: any) =>{locallist.push(item.val());});
     return locallist; 
   }
   reset(){
