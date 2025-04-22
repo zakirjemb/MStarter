@@ -59,7 +59,9 @@
                 {{LightSensorState}}
             </m-result-box>
             <div>
-                <canvasjs-chart [options]="chartOptions" [styles]="{width: '100%', height: '360px'}" (chartInstance)="getChartInstance($event)"></canvasjs-chart>    
+                <canvasjs-chart [options]="chartOptions" [styles]="{width: '100%', height: '360px'}" (chartInstance)="getChartInstance($event)">
+                    
+                </canvasjs-chart>    
             </div>   
         </m-card>
 </m-container>
