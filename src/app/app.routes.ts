@@ -1,7 +1,10 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
-import { Feature1Component } from './feature1/feature1.component';
+import { HardwareComponent } from './hardware/hardware.component';
+import { SideeffectsComponent } from './sideeffects/sideeffects.component';
 export const routes: Routes = [
     {path:'', component:HomeComponent},
-    {path:'feature1', component:Feature1Component}
+    {path:'hardware', component:HardwareComponent},
+    {path:'sideeffects', component:SideeffectsComponent},
+    
 ];
