@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
-import { MContainerComponent } from '../m-framework/components/m-container/m-container.component';
+import { MContainerComponent } from '../../m-framework/components/m-container/m-container.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MCardComponent } from '../m-framework/components/m-card/m-card.component';
-import { MResultBoxComponent } from '../m-framework/components/m-result-box/m-result-box.component';
+import { MCardComponent } from '../../m-framework/components/m-card/m-card.component';
+import { MResultBoxComponent } from '../../m-framework/components/m-result-box/m-result-box.component';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
-import { PersistenceService } from '../m-framework/services/persistence.service';
-import { environment } from '../environments/environment';
+import { PersistenceService } from '../../m-framework/services/persistence.service';
+import { environment } from '../../environments/environment';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, set} from 'firebase/database';
-import { MAnalogOutputComponent } from '../m-framework/components/m-analog-output/m-analog-output.component';
+import { MAnalogOutputComponent } from '../../m-framework/components/m-analog-output/m-analog-output.component';
 
 @Component({
   selector: 'app-hardware',
