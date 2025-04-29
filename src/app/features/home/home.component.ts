@@ -31,5 +31,9 @@ export class HomeComponent {
   sideEffectsApp(){
     this.router.navigateByUrl('/sideeffects');
   }
+
+  qiblaFinderApp(){
+    this.router.navigateByUrl('/qiblafinder');
+  }
  
 }

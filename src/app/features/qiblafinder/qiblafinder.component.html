@@ -1,0 +1,11 @@
+<m-container>
+    <br><br>
+    <form class="pure-form">
+        <fieldset>
+            <label for="city">Look Up City</label><br>
+            <input type="text" name="city" id="city" [(ngModel)]="city" required>
+        </fieldset>
+        <button class="pure-button" (click)="findQibla()">Find Qibla</button>
+    </form>
+    <h1>Qibla Direction: {{angle || "Type your city"}}</h1>
+</m-container>
