@@ -6,8 +6,27 @@
             <input type="text" name="city" id="city" [(ngModel)]="city" required>
         </fieldset>
         <button class="pure-button" (click)="findQibla()">Find Qibla</button>
+        <button class="pure-button" (click)="enableSensors()">Enable Motion & Orientation</button>
+
     </form>
-    <h1>Latitude: {{lat}}</h1>
-    <h1>Longitude: {{lng}}</h1>
-    <h1>Qibla Direction: {{angle || "Type your city"}}</h1>
+
+    <m-result-box *ngIf="angle" [label]="'Location'" class="'normal'">
+        {{lat || "N/A"}}, {{lng || "N/A"}} <br> 
+        Qibla Angle: {{angle | number:'1.1-1'}}
+    </m-result-box>
+
+    <div *ngIf="orientation">
+        <p>Alpha: {{ orientation.alpha | number:'1.0-2' }}</p>
+        <p>Beta: {{ orientation.beta | number:'1.0-2' }}</p>
+        <p>Gamma: {{ orientation.gamma | number:'1.0-2' }}</p>
+      </div>
+  
+      <div *ngIf="motion">
+        <p>Accel X: {{ motion.acceleration?.x | number:'1.0-2' }}</p>
+        <p>Accel Y: {{ motion.acceleration?.y | number:'1.0-2' }}</p>
+        <p>Accel Z: {{ motion.acceleration?.z | number:'1.0-2' }}</p>
+      </div>
+
+    <m-compass *ngIf="orientation" [angle]="orientation.alpha" [size]="'100%'" [centered]="true"></m-compass>
+
 </m-container>
