@@ -40,7 +40,7 @@ export class QiblafinderComponent {
       this.lng = data.results[0].geometry.location.lng;
       this.getQiblaDirection(this.lat, this.lng);
     });
-  }
+  } 
 
   getQiblaDirection(lat:number | null, lng:number | null) {
     if (!lat || !lng) return;
