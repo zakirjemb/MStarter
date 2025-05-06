@@ -35,5 +35,7 @@ export class HomeComponent {
   qiblaFinderApp(){
     this.router.navigateByUrl('/qiblafinder');
   }
- 
+  trackerApp(){
+    this.router.navigateByUrl('/tracker');
+  }
 }
