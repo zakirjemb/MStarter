@@ -1,15 +1,34 @@
 <m-container>
     <br><br>
-    <div>My Location's Latitude: {{lat}}</div>
-    <div>My Location's Longitude: {{lng}}</div>
+    <div>My Location's Latitude: {{mylocation.lat}}</div>
+    <div>My Location's Longitude: {{mylocation.lng}}</div>
 
     <google-map
         height="400px"
         width="100%"
         [center]="center"
         [zoom] = "zoom"
-        (mapClick)="showWhereTheUserClicked($event)"
+        (mapClick)="addMarker($event)"
     >
-
+        <map-marker
+            *ngFor="let position of positions"
+            #mymarker="mapMarker"
+            [position]="position"
+            (mapClick)="openInfoWindow(mymarker)"
+        >
+            <map-info-window 
+                #infoWindow="mapInfoWindow"
+            >
+                {{infoWindow.getPosition()}}
+            </map-info-window>       
+        </map-marker>
+        
+        <map-circle
+            *ngFor="let position of positions"
+            [center]="position"
+            [radius]="80000"
+        >   
+        </map-circle>
+    
     </google-map>
 </m-container>

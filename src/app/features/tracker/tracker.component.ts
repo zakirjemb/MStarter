@@ -1,31 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MContainerComponent } from "../../m-framework/components/m-container/m-container.component";
-import { GoogleMap } from '@angular/google-maps';
+import { GoogleMap,MapMarker,MapInfoWindow,MapCircle } from '@angular/google-maps';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-tracker',
   standalone: true,
-  imports: [MContainerComponent,GoogleMap],
+  imports: [MapCircle,CommonModule,MContainerComponent,GoogleMap,MapMarker,MapInfoWindow],
   templateUrl: './tracker.component.html',
   styleUrl: './tracker.component.css'
 })
 export class TrackerComponent {
-
-  lat: number;
-  lng: number; 
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
+  mylocation: google.maps.LatLngLiteral;
   center: google.maps.LatLngLiteral =  {lat: 0, lng: 0};
   zoom: number = 4;
+  positions: google.maps.LatLngLiteral[] = [];
 
   constructor(){
-    this.lat = 0; 
-    this.lng = 0; 
+    this.mylocation = {lat: 0, lng: 0};
     navigator.geolocation.getCurrentPosition((data)=>{
-      this.lat = data.coords.latitude;
-      this.lng = data.coords.longitude;
-      this.center = {lat:this.lat , lng: this.lng};
+      this.mylocation.lat = data.coords.latitude;
+      this.mylocation.lng = data.coords.longitude;
+      this.center = this.mylocation;
     });
 
   }
-  showWhereTheUserClicked(event: google.maps.MapMouseEvent){
-      console.log(event.latLng?.toJSON());
+
+  addMarker(event: google.maps.MapMouseEvent){
+      let locationPicked = event.latLng?.toJSON()
+      if(locationPicked)
+        this.positions.push(locationPicked);
+      
+  }
+
+  openInfoWindow(marker: MapMarker){
+    this.infoWindow.open(marker);
   }
 }
