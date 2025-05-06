@@ -15,9 +15,11 @@ export class TrackerComponent {
   center: google.maps.LatLngLiteral =  {lat: 0, lng: 0};
   zoom: number = 4;
   positions: google.maps.LatLngLiteral[] = [];
-
+  selected: google.maps.LatLngLiteral;
   constructor(){
     this.mylocation = {lat: 0, lng: 0};
+    this.selected = {lat: 0, lng: 0};
+  
     navigator.geolocation.getCurrentPosition((data)=>{
       this.mylocation.lat = data.coords.latitude;
       this.mylocation.lng = data.coords.longitude;
@@ -33,7 +35,8 @@ export class TrackerComponent {
       
   }
 
-  openInfoWindow(marker: MapMarker){
+  openInfoWindow(marker: MapMarker, position:google.maps.LatLngLiteral){
+    this.selected = position;
     this.infoWindow.open(marker);
   }
 }

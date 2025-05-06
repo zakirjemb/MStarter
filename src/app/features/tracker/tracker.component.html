@@ -8,27 +8,25 @@
         width="100%"
         [center]="center"
         [zoom] = "zoom"
-        (mapClick)="addMarker($event)"
-    >
+        (mapClick)="addMarker($event)">
+
         <map-marker
             *ngFor="let position of positions"
             #mymarker="mapMarker"
             [position]="position"
-            (mapClick)="openInfoWindow(mymarker)"
-        >
-            <map-info-window 
-                #infoWindow="mapInfoWindow"
-            >
-                {{infoWindow.getPosition()}}
-            </map-info-window>       
-        </map-marker>
+            (mapClick)="openInfoWindow(mymarker,position)"
+        />
+
         
         <map-circle
             *ngFor="let position of positions"
             [center]="position"
             [radius]="80000"
-        >   
-        </map-circle>
+        />   
+
+        <map-info-window #infoWindow="mapInfoWindow">
+            {{selected | json}}
+        </map-info-window>       
     
     </google-map>
 </m-container>
