@@ -1,5 +1,15 @@
 <m-container>
     <br><br>
-    <div>Latitude: {{lat}}</div>
-    <div>Longitude: {{lng}}</div>
+    <div>My Location's Latitude: {{lat}}</div>
+    <div>My Location's Longitude: {{lng}}</div>
+
+    <google-map
+        height="400px"
+        width="100%"
+        [center]="center"
+        [zoom] = "zoom"
+        (mapClick)="showWhereTheUserClicked($event)"
+    >
+
+    </google-map>
 </m-container>
