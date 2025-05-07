@@ -1,32 +1,39 @@
 <m-container>
-    <br><br>
-    <div>My Location's Latitude: {{mylocation.lat}}</div>
-    <div>My Location's Longitude: {{mylocation.lng}}</div>
+  <br /><br />
+  <div>My Location's Latitude: {{ mylocation.lat }}</div>
+  <div>My Location's Longitude: {{ mylocation.lng }}</div>
+  <button (click)="closeAllWindows()">Close All</button>
+  <button (click)="removeMarkers()">Remove Makers</button>
+  <google-map
+    height="400px"
+    width="100%"
+    [center]="center"
+    [zoom]="zoom"
+    (mapClick)="addMarker($event)"
+  >
+    <map-marker
+      *ngFor="let position of positions; let i = index"
+      [position]="position"
+      #markerRef="mapMarker"
+      (mapClick)="openInfoWindow(i, markerRef)"
+    >
+    </map-marker>
 
-    <google-map
-        height="400px"
-        width="100%"
-        [center]="center"
-        [zoom] = "zoom"
-        (mapClick)="addMarker($event)">
+    <map-info-window *ngFor="let position of positions; let i = index">
+      <div>
+        <strong>Marker #{{ i }}</strong
+        ><br />
+        Latitude: {{ position.lat }}<br />
+        Longitude: {{ position.lng }}
+      </div>
+    </map-info-window>
 
-        <map-marker
-            *ngFor="let position of positions"
-            #mymarker="mapMarker"
-            [position]="position"
-            (mapClick)="openInfoWindow(mymarker,position)"
-        />
+    <map-circle
+      *ngFor="let circle of list"
+      [center]="circle.position"
+      [radius]="circle.radius"
+    />
+    <map-directions-renderer *ngIf="directionsResults$ | async as directionsResults" [directions]="directionsResults" />
 
-        
-        <map-circle
-            *ngFor="let position of positions"
-            [center]="position"
-            [radius]="80000"
-        />   
-
-        <map-info-window #infoWindow="mapInfoWindow">
-            {{selected | json}}
-        </map-info-window>       
-    
-    </google-map>
+  </google-map>
 </m-container>
