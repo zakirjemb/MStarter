@@ -1,16 +1,23 @@
 <m-container>
     <br><br>
-    <div>Location's Latitude: {{currentlocation.lat}}</div>
-    <div>Location's Longitude: {{currentlocation.lng}}</div>
-    <div>Click's Latitude: {{clicklocation.lat}}</div>
-    <div>Click's Longitude: {{clicklocation.lng}}</div>
+    <div>Location's Latitude: {{currentlocation?.lat}}</div>
+    <div>Location's Longitude: {{currentlocation?.lng}}</div>
+    <div>Click's Latitude: {{clicklocation?.lat}}</div>
+    <div>Click's Longitude: {{clicklocation?.lng}}</div>
     <google-map
         height="400px"
         width="100%"
         [center]="mapcenter"
         [zoom]="zoom"
-        (mapClick)="showMe($event)"
+        (mapClick)="addMarker($event)"
     >
+        <map-marker 
+            *ngFor="let informedMarker of informedMakerlist"
+            [position]="informedMarker.position"
+    
+        >
+            
+        </map-marker>
 
     </google-map>
 </m-container>
