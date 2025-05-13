@@ -2,4 +2,15 @@
     <br><br>
     <div>Location's Latitude: {{currentlocation.lat}}</div>
     <div>Location's Longitude: {{currentlocation.lng}}</div>
+    <div>Click's Latitude: {{clicklocation.lat}}</div>
+    <div>Click's Longitude: {{clicklocation.lng}}</div>
+    <google-map
+        height="400px"
+        width="100%"
+        [center]="mapcenter"
+        [zoom]="zoom"
+        (mapClick)="showMe($event)"
+    >
+
+    </google-map>
 </m-container>
