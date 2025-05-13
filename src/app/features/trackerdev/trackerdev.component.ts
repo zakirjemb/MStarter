@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren,QueryList } from '@angular/core';
 import { MContainerComponent } from "../../m-framework/components/m-container/m-container.component";
-import { GoogleMap,MapMarker } from '@angular/google-maps';
+import { GoogleMap,MapMarker,MapInfoWindow, MapCircle } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
+
+
 interface InformedMarker{
   position: google.maps.LatLngLiteral;
   title: string; 
@@ -9,18 +11,19 @@ interface InformedMarker{
   info: string; 
 };
 
-
-
-
 @Component({
   selector: 'app-trackerdev',
   standalone: true,
-  imports: [MContainerComponent,GoogleMap,MapMarker,CommonModule],
+  imports: [MContainerComponent,GoogleMap,MapMarker,CommonModule,MapInfoWindow,MapCircle],
   templateUrl: './trackerdev.component.html',
   styleUrl: './trackerdev.component.css'
 })
 export class TrackerdevComponent implements OnInit{
 
+  @ViewChildren(MapMarker) markers!: QueryList<MapMarker>;
+  @ViewChildren(MapInfoWindow) infoWindows!: QueryList<MapInfoWindow>;
+  @ViewChildren(MapCircle) circles!: QueryList<MapCircle>;
+  
   currentlocation: google.maps.LatLngLiteral | void;
   clicklocation:   google.maps.LatLngLiteral | undefined;
   mapcenter:       google.maps.LatLngLiteral;
@@ -45,8 +48,6 @@ export class TrackerdevComponent implements OnInit{
     const locationClicked = event.latLng?.toJSON();
     if(locationClicked)
       this.informedMakerlist.push({position:locationClicked,title:"Title Goes Here",subtitle:"Subtitle Goes Here",info:"Info Goes Here"});
-  
-
   }
 
   getCurrentLocation(): Promise<{lat: number, lng: number}>{
@@ -58,6 +59,11 @@ export class TrackerdevComponent implements OnInit{
         reject(error);
       })
     });
+  }
+  openInfoMarker(i: number, marker: MapMarker){
+    const infoWindow = this.infoWindows.toArray()[i];
+    if(infoWindow)
+      infoWindow.open(marker);
   }
 
 }

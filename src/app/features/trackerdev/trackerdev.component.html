@@ -11,11 +11,19 @@
         [zoom]="zoom"
         (mapClick)="addMarker($event)"
     >
-        <map-marker 
-            *ngFor="let informedMarker of informedMakerlist"
+        <map-marker
+            #markerRef = "mapMarker"  
+            *ngFor="let informedMarker of informedMakerlist; let i = index"
             [position]="informedMarker.position"
+            (mapClick)="openInfoMarker(i,markerRef)"
     
         >
+        <map-info-window *ngFor="let informedMarker of informedMakerlist">
+             <p>{{informedMarker.title}}</p>
+             <p>{{informedMarker.subtitle}}</p>
+             <p>{{informedMarker.info}}</p>
+             <p>{{informedMarker.position.lat}}, {{informedMarker.position.lng}}</p>
+        </map-info-window>
             
         </map-marker>
 
