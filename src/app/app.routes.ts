@@ -4,11 +4,13 @@ import { HardwareComponent } from './features/hardware/hardware.component';
 import { SideeffectsComponent } from './features/sideeffects/sideeffects.component';
 import { QiblafinderComponent } from './features/qiblafinder/qiblafinder.component';
 import { TrackerComponent } from './features/tracker/tracker.component';
+import { TrackerdevComponent } from './features/trackerdev/trackerdev.component';
 export const routes: Routes = [
     {path:'', component:HomeComponent},
     {path:'hardware', component:HardwareComponent},
     {path:'sideeffects', component:SideeffectsComponent},    
     {path:'qiblafinder',component:QiblafinderComponent},
-    {path:'tracker',component:TrackerComponent}
+    {path:'tracker',component:TrackerComponent},
+    {path:'trackerdev',component:TrackerdevComponent}
  
 ];

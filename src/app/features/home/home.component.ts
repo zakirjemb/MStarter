@@ -38,4 +38,7 @@ export class HomeComponent {
   trackerApp(){
     this.router.navigateByUrl('/tracker');
   }
+  trackerDEVApp(){
+    this.router.navigateByUrl('/trackerdev');
+  }
 }
