@@ -1,3 +1,17 @@
+/* 
+Usecases: Infinite - Depend on my mood
+
+Any usecase - Master Skills
+* Big list > small list  s.t. criteria (filtering)
+* Proportional Circles. Radius s.t. property
+* InfoWindow Design 
+* Route between two points 
+
+*/
+
+
+
+
 import { Component, OnInit, ViewChild, ViewChildren,QueryList } from '@angular/core';
 import { MContainerComponent } from "../../m-framework/components/m-container/m-container.component";
 import { GoogleMap,MapMarker,MapInfoWindow, MapCircle } from '@angular/google-maps';
@@ -10,6 +24,13 @@ interface InformedMarker{
   subtitle: string; 
   info: string; 
 };
+
+interface CircularObjects{
+  position: google.maps.LatLngLiteral;
+  radius: number;
+  color: string; 
+};
+
 
 @Component({
   selector: 'app-trackerdev',
@@ -24,11 +45,12 @@ export class TrackerdevComponent implements OnInit{
   @ViewChildren(MapInfoWindow) infoWindows!: QueryList<MapInfoWindow>;
   @ViewChildren(MapCircle) circles!: QueryList<MapCircle>;
   
-  currentlocation: google.maps.LatLngLiteral | void;
-  clicklocation:   google.maps.LatLngLiteral | undefined;
+  currentlocation: google.maps.LatLngLiteral;
+  clicklocation:   google.maps.LatLngLiteral;
   mapcenter:       google.maps.LatLngLiteral;
   zoom: number;
   informedMakerlist: InformedMarker[]; 
+  circleList: CircularObjects[];
 
   constructor(){
     this.currentlocation = {lat: 0, lng: 0};
@@ -36,14 +58,13 @@ export class TrackerdevComponent implements OnInit{
     this.clicklocation = {lat: 0, lng: 0};
     this.zoom = 4;
     this.informedMakerlist = [];
+    this.circleList = [];
   }
-  async ngOnInit() {
-      this.currentlocation = await this.getCurrentLocation().catch((error)=>{console.log(error)});
+  ngOnInit() {
+      this.centerMapToLocation();
   }
   
-  async showMe(event:google.maps.MapMouseEvent){
-    this.clicklocation = event.latLng?.toJSON();
-  }
+
   addMarker(event: google.maps.MapMouseEvent){
     const locationClicked = event.latLng?.toJSON();
     if(locationClicked)
@@ -69,11 +90,58 @@ export class TrackerdevComponent implements OnInit{
   removeMarkers(){
     this.informedMakerlist = [];
   }
+  removeCircles(){
+    this.circleList = [];
+  }
+
+  clearMap(){
+    this.removeCircles();
+    this.removeMarkers();
+  }
 
   removeMarker(informedMarker:InformedMarker){
     const indexToRemove = this.informedMakerlist.indexOf(informedMarker);
     if(indexToRemove!=-1)
       this.informedMakerlist.splice(indexToRemove,1);
+  }
+
+  circleClicked(circle:any){
+    console.log(circle);
+    circle.radius = circle.radius*2; 
+  }
+
+  async centerMapToLocation(){
+    const loc = await this.getCurrentLocation().catch((error)=>console.log);
+    if(!loc)
+      return; 
+    this.adjustMap(loc,4);
+  }
+  
+  changeColor(){
+    const mapCircle = this.circles.get(0);
+    if (mapCircle?.circle) {
+      mapCircle.circle.setOptions({
+        fillColor: '#FF0000'  // new color
+      });
+    } else 
+      console.warn('Circle is not yet initialized.');
+    
+  }
+  closeAllWindow(){
+    this.infoWindows.forEach((informedWindow)=>{informedWindow.close()});
+  }
+
+
+  usecase1(){
+    // TODO: Write code that will show a 3k circle
+    // around only the first marker 
+    for(let i = 0; i < this.informedMakerlist.length; i++)
+      this.circleList.push({position: this.informedMakerlist[i].position, radius:30000,color:"black"});
+  }
+
+  adjustMap(location:any, zoom: number){
+    this.mapcenter = location;
+    this.zoom = zoom;
   }
 
 }
