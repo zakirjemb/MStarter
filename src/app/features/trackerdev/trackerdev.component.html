@@ -4,6 +4,7 @@
     <div>Location's Longitude: {{currentlocation?.lng}}</div>
     <div>Click's Latitude: {{clicklocation?.lat}}</div>
     <div>Click's Longitude: {{clicklocation?.lng}}</div>
+    <button class="pure-button" (click)="removeMarkers()"> Clear </button>
     <google-map
         height="400px"
         width="100%"
@@ -23,6 +24,7 @@
              <p>{{informedMarker.subtitle}}</p>
              <p>{{informedMarker.info}}</p>
              <p>{{informedMarker.position.lat}}, {{informedMarker.position.lng}}</p>
+             <button (click)="removeMarker(informedMarker)">X</button>
         </map-info-window>
             
         </map-marker>

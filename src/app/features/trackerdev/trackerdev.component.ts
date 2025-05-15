@@ -66,4 +66,14 @@ export class TrackerdevComponent implements OnInit{
       infoWindow.open(marker);
   }
 
+  removeMarkers(){
+    this.informedMakerlist = [];
+  }
+
+  removeMarker(informedMarker:InformedMarker){
+    const indexToRemove = this.informedMakerlist.indexOf(informedMarker);
+    if(indexToRemove!=-1)
+      this.informedMakerlist.splice(indexToRemove,1);
+  }
+
 }
