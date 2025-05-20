@@ -14,9 +14,10 @@ Any usecase - Master Skills
 
 import { Component, OnInit, ViewChild, ViewChildren,QueryList } from '@angular/core';
 import { MContainerComponent } from "../../m-framework/components/m-container/m-container.component";
-import { GoogleMap,MapMarker,MapInfoWindow, MapCircle } from '@angular/google-maps';
+import { GoogleMap,MapMarker,MapInfoWindow, MapCircle, MapDirectionsRenderer, MapDirectionsService } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
+import { map, Observable } from 'rxjs'
 
 interface InformedMarker{
   position: google.maps.LatLngLiteral;
@@ -35,7 +36,7 @@ interface CircularObjects{
 @Component({
   selector: 'app-trackerdev',
   standalone: true,
-  imports: [MContainerComponent,GoogleMap,MapMarker,CommonModule,MapInfoWindow,MapCircle],
+  imports: [MContainerComponent,GoogleMap,MapMarker,CommonModule,MapInfoWindow,MapCircle,FormsModule,MapDirectionsRenderer],
   templateUrl: './trackerdev.component.html',
   styleUrl: './trackerdev.component.css'
 })
@@ -52,13 +53,25 @@ export class TrackerdevComponent implements OnInit{
   informedMakerlist: InformedMarker[]; 
   circleList: CircularObjects[];
 
-  constructor(){
+  title: string;
+  subtitle: string; 
+  info: string; 
+
+  directionResults$: Observable<google.maps.DirectionsResult|undefined>;
+
+  constructor(public mapDirectionsService: MapDirectionsService){
     this.currentlocation = {lat: 0, lng: 0};
     this.mapcenter = {lat: 0, lng: 0};
     this.clicklocation = {lat: 0, lng: 0};
     this.zoom = 4;
     this.informedMakerlist = [];
     this.circleList = [];
+
+    this.title = ""; 
+    this.subtitle = "";
+    this.info = ""; 
+
+    this.directionResults$ = new Observable<google.maps.DirectionsResult|undefined>();
   }
   ngOnInit() {
       this.centerMapToLocation();
@@ -68,9 +81,30 @@ export class TrackerdevComponent implements OnInit{
   addMarker(event: google.maps.MapMouseEvent){
     const locationClicked = event.latLng?.toJSON();
     if(locationClicked)
-      this.informedMakerlist.push({position:locationClicked,title:"Title Goes Here",subtitle:"Subtitle Goes Here",info:"Info Goes Here"});
+      this.informedMakerlist.push({position:locationClicked,title:"",subtitle:"",info:""});
+  }
+  saveInfromedMarker(informedMarker:InformedMarker)
+  {
+    informedMarker.title = this.title; 
+    informedMarker.subtitle = this.subtitle;
+    informedMarker.info = this.info; 
+    this.title="";
+    this.subtitle ="";
+    this.info="";
   }
 
+  requestDirections(
+      origin:google.maps.LatLngLiteral, 
+      destination: google.maps.LatLngLiteral, 
+      mode: any ): Observable<google.maps.DirectionsResult|undefined>
+  {
+    const request: google.maps.DirectionsRequest = {
+      destination: destination,
+      origin: origin,
+      travelMode: mode
+    }
+    return this.mapDirectionsService.route(request).pipe(map(response=>response.result))
+  }
   getCurrentLocation(): Promise<{lat: number, lng: number}>{
     return new Promise((resolve,reject)=>{
       navigator.geolocation.getCurrentPosition((data)=>{
@@ -117,11 +151,11 @@ export class TrackerdevComponent implements OnInit{
     this.adjustMap(loc,4);
   }
   
-  changeColor(){
+  changeColor(colorString:string){
     const mapCircle = this.circles.get(0);
     if (mapCircle?.circle) {
       mapCircle.circle.setOptions({
-        fillColor: '#FF0000'  // new color
+        fillColor: colorString  // new color
       });
     } else 
       console.warn('Circle is not yet initialized.');
@@ -131,17 +165,24 @@ export class TrackerdevComponent implements OnInit{
     this.infoWindows.forEach((informedWindow)=>{informedWindow.close()});
   }
 
+  adjustMap(location:any, zoom: number){
+    this.mapcenter = location;
+    this.zoom = zoom;
+  }
 
-  usecase1(){
-    // TODO: Write code that will show a 3k circle
-    // around only the first marker 
+
+  usecase1()
+  {
     for(let i = 0; i < this.informedMakerlist.length; i++)
       this.circleList.push({position: this.informedMakerlist[i].position, radius:30000,color:"black"});
   }
 
-  adjustMap(location:any, zoom: number){
-    this.mapcenter = location;
-    this.zoom = zoom;
+  usecase2()
+  {
+    const origin = this.informedMakerlist[0].position;
+    const desgination = this.informedMakerlist[this.informedMakerlist.length-1].position; 
+    this.directionResults$ = this.requestDirections(origin,desgination,google.maps.TravelMode.DRIVING);
+    this.directionResults$.subscribe((result)=>{console.log(result)});
   }
 
 }
