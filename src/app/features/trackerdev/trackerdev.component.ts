@@ -1,23 +1,24 @@
-/* 
-Usecases: Infinite - Depend on my mood
-
-Any usecase - Master Skills
-* Big list > small list  s.t. criteria (filtering)
-* Proportional Circles. Radius s.t. property
-* InfoWindow Design 
-* Route between two points 
-
-*/
-
-
-
-
 import { Component, OnInit, ViewChild, ViewChildren,QueryList } from '@angular/core';
 import { MContainerComponent } from "../../m-framework/components/m-container/m-container.component";
 import { GoogleMap,MapMarker,MapInfoWindow, MapCircle, MapDirectionsRenderer, MapDirectionsService } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { map, Observable } from 'rxjs'
+import { initializeApp } from 'firebase/app';
+import { getDatabase, set, onValue, push, ref, DataSnapshot } from 'firebase/database';
+import { Data } from '@angular/router';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCG-kz9fuWjoJLwqvjwwMZvlY_KSmVYJwM",
+  authDomain: "persistenceapp-9cc3e.firebaseapp.com",
+  databaseURL: "https://persistenceapp-9cc3e.firebaseio.com",
+  projectId: "persistenceapp-9cc3e",
+  storageBucket: "persistenceapp-9cc3e.firebasestorage.app",
+  messagingSenderId: "469836792083",
+  appId: "1:469836792083:web:eda43b4bb25ebc25f45ae6"
+};
+
+
 
 interface InformedMarker{
   position: google.maps.LatLngLiteral;
@@ -59,6 +60,8 @@ export class TrackerdevComponent implements OnInit{
 
   directionResults$: Observable<google.maps.DirectionsResult|undefined>;
 
+  db: any;
+
   constructor(public mapDirectionsService: MapDirectionsService){
     this.currentlocation = {lat: 0, lng: 0};
     this.mapcenter = {lat: 0, lng: 0};
@@ -72,6 +75,14 @@ export class TrackerdevComponent implements OnInit{
     this.info = ""; 
 
     this.directionResults$ = new Observable<google.maps.DirectionsResult|undefined>();
+    
+    this.db = getDatabase(initializeApp(firebaseConfig));
+
+    onValue(ref(this.db,'interestinglocations'),(data:DataSnapshot)=>{
+        this.informedMakerlist = [];
+        this.informedMakerlist = Object.values(data.val()) as InformedMarker[];
+    });
+
   }
   ngOnInit() {
       this.centerMapToLocation();
@@ -91,6 +102,8 @@ export class TrackerdevComponent implements OnInit{
     this.title="";
     this.subtitle ="";
     this.info="";
+    push(ref(this.db,"interestinglocations"), informedMarker);
+
   }
 
   requestDirections(
@@ -182,7 +195,10 @@ export class TrackerdevComponent implements OnInit{
     const origin = this.informedMakerlist[0].position;
     const desgination = this.informedMakerlist[this.informedMakerlist.length-1].position; 
     this.directionResults$ = this.requestDirections(origin,desgination,google.maps.TravelMode.DRIVING);
-    this.directionResults$.subscribe((result)=>{console.log(result)});
+    this.directionResults$.subscribe((result: any)=>{
+      if (result)
+        console.log(result.routes[0].legs[0].distance.value)
+    });
   }
 
 }
