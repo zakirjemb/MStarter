@@ -42,7 +42,9 @@ export class TrackerComponent implements OnInit {
   directionsResults$: Observable<google.maps.DirectionsResult|undefined>;
   title: string = "";
   subtitle: string = "";
-  info: string = "";
+  info: string = ""; 
+  movementInterval: any = null;
+
 
   //--------------------------------------------------------------------------------
   constructor(public mapDirectionsService: MapDirectionsService,public cdr: ChangeDetectorRef){
@@ -61,7 +63,7 @@ export class TrackerComponent implements OnInit {
 
   //--------------------------------------------------------------------------------
   acquireRemotePositionalData(useCase: number){
-    // Simulate remote data acquisition
+    
     setTimeout(() => {
       const data = [
         { position:{lat: this.currentlocation.lat + 1, lng: this.currentlocation.lng + 1}, title: "Hamada Care", subtitle:"Hospital", info:"Good One" } as InformedMarker,
@@ -105,7 +107,7 @@ export class TrackerComponent implements OnInit {
     
     let maxdistance = 0;
     this.informedMarkersList.forEach(element => { 
-      let distance = Math.sqrt((element.position.lat-averageLat)*(element.position.lat-averageLat) + (element.position.lng-averageLng)*(element.position.lng-averageLng));
+      let distance = Math.sqrt((element.position.lat-averageLat)**2 + (element.position.lng-averageLng)**2);
       if(distance > maxdistance)
         maxdistance = distance; 
     });
@@ -119,7 +121,7 @@ export class TrackerComponent implements OnInit {
     const origin = data[0].position; 
     const destination = data[data.length-1].position;
     this.circlesList.push({position: data[0].position, radius: 10000} as CirclesToDraw);
-    const mode = google.maps.TravelMode.DRIVING;
+    const mode = google.maps.TravelMode.BICYCLING;
     this.directionsResults$ = this.requestDirections(origin, destination, mode);
     this.directionsResults$.subscribe((result) => {
       console.log(result);
@@ -148,17 +150,12 @@ export class TrackerComponent implements OnInit {
     return this.mapDirectionsService.route(request).pipe(map(response => response.result));
   }
 
-  //--------------------------------------------------------------------------------
+  
   getCurrentLocation(): Promise<{ lat: number; lng: number }> {
     return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        (data) => {
-          const location = {
-            lat: data.coords.latitude,
-            lng: data.coords.longitude,
-          };
-          this.currentlocation = location;
-          resolve(location);
+      navigator.geolocation.getCurrentPosition((data) => {
+          this.currentlocation = {lat: data.coords.latitude, lng: data.coords.longitude};
+          resolve(this.currentlocation);
         },
         (error) => {
           reject(error);
@@ -221,7 +218,7 @@ export class TrackerComponent implements OnInit {
   }
   //--------------------------------------------------------------------------------
   circleClicked(circle: CirclesToDraw){ 
-    circle.radius = circle.radius*2; 
+    circle.radius *= 2; 
     console.log(circle.radius);
     console.log("Circle clicked: " + this.circlesList[0].toString());
   }
@@ -243,4 +240,115 @@ export class TrackerComponent implements OnInit {
     if (!location) return;
     this.adjustMap(location.lat, location.lng, 4);
   }
+
+
+  
+  // 1. Top-rated restaurants (3+ stars) with circle highlight
+showTopRestaurants() {
+
+  const top = this.informedMarkersList.filter((r: InformedMarker) => 
+    r.subtitle.includes('Restaurant') && +r.info >= 3
+  );
+
+  if (top.length > 0) {
+    this.circlesList = [{
+      position: top[0].position, 
+      radius: 3000,
+      color: 'green'
+    } as CirclesToDraw];
+  }
+  /*
+  this.circlesList = top.map((r: InformedMarker)=> ({
+  position: r.position,
+  radius: 3000,
+  color: 'green'
+} as CirclesToDraw));
+
+  */
 }
+// 2. Hospitals with population circles
+showHospitalCircles() {
+   this.circlesList = [];
+  this.informedMarkersList.filter((h: InformedMarker) => h.subtitle.includes('Hospital'))
+    .forEach((h: InformedMarker) => {
+      this.circlesList.push({
+        position: h.position,
+        radius: +h.info * 100
+      } as CirclesToDraw);
+    });
+}
+
+// 3. Nearest hospital with driving directions (short version)
+async showNearestHospital() {
+  const user = await this.getCurrentLocation();
+  const nearest = this.informedMarkersList
+    .filter(h => h.subtitle.match(/Hospital|Clinic/i))
+    .sort((a,b) => this.getDistance(user, a.position) - this.getDistance(user, b.position))[0];
+  
+  this.directionsResults$ = this.requestDirections(user, nearest.position, google.maps.TravelMode.DRIVING);
+}
+
+// Short distance calculation
+private getDistance(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral) {
+  return google.maps.geometry.spherical.computeDistanceBetween(
+    new google.maps.LatLng(a.lat, a.lng),
+    new google.maps.LatLng(b.lat, b.lng)
+  ); 
+}
+
+// 4. Moving marker with circle
+startMovement() {
+  if (this.movementInterval) return;
+  this.movementInterval =setInterval(() => {
+    if (this.informedMarkersList.length > 0 && this.circlesList.length > 0) {
+      const newPos = {
+        lat: this.informedMarkersList[0].position.lat + 0.01,
+        lng: this.informedMarkersList[0].position.lng
+      };
+      
+      this.informedMarkersList[0].position = newPos;
+      this.circlesList[0].position = newPos;
+    }
+  }, 1000);
+}
+stopMovement() {
+  if (this.movementInterval) {
+    clearInterval(this.movementInterval);
+    this.movementInterval = null;
+  }
+}
+}
+  //--------------------------------------------------------------------------------
+  
+/*
+ //--------------------------------------------------------------------------------
+  changeCircleColor(color: string) {
+    this.circlesList.forEach(circle => {
+      circle.color = color;
+    });
+  }
+    //
+startMovement() {
+  if (this.movementInterval) return; // Prevent duplicate intervals
+
+  this.movementInterval = setInterval(() => {
+    for (let i = 0; i < this.informedMarkersList.length; i++) {
+      const marker = this.informedMarkersList[i];
+
+      // Move slightly north (lat + 0.01)
+      const newPos = {
+        lat: marker.position.lat + 0.01,
+        lng: marker.position.lng
+      };
+
+      // Update marker position
+      this.informedMarkersList[i].position = newPos;
+
+      // Update circle if it exists at same index
+      if (i < this.circlesList.length) {
+        this.circlesList[i].position = newPos;
+      }
+    }
+  }, 1000);
+}*/
+

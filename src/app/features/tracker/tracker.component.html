@@ -10,6 +10,12 @@
   <button class="pure-button" (click)="acquireRemotePositionalData(2)">Trigger Usecase 2</button>
   <button class="pure-button" (click)="acquireRemotePositionalData(3)">Trigger Usecase 3</button>
   <button class="pure-button" (click)="acquireRemotePositionalData(4)">Trigger Usecase 4</button>
+<!-- Use case buttons -->
+  <button class="pure-button" (click)="showTopRestaurants()">Top Restaurants</button>
+  <button class="pure-button" (click)="showHospitalCircles()">Hospital Pop Circles</button>
+  <button class="pure-button" (click)="showNearestHospital()">Nearest Hospital</button>
+  <button class="pure-button" (click)="startMovement()">Start Movement</button>
+  <button class="pure-button" (click)="stopMovement()">Stop Movement</button>
 
   <google-map
     height="400px"
@@ -53,7 +59,7 @@
       [radius]="circle.radius"
       (circleClick)="circleClicked(circle)"
     />
-    <map-directions-renderer *ngIf="directionsResults$ | async as directionsResults" [directions]="directionsResults" />
+    <map-directions-renderer *ngIf="directionsResults$ | async as dir" [directions]="dir" />
 
   </google-map>
 </m-container>

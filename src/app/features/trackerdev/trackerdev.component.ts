@@ -5,19 +5,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { map, Observable } from 'rxjs'
 import { initializeApp } from 'firebase/app';
-import { getDatabase, set, onValue, push, ref, DataSnapshot } from 'firebase/database';
+import { getDatabase, set, onValue, push, ref, DataSnapshot, remove} from 'firebase/database';
 import { Data } from '@angular/router';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCG-kz9fuWjoJLwqvjwwMZvlY_KSmVYJwM",
-  authDomain: "persistenceapp-9cc3e.firebaseapp.com",
-  databaseURL: "https://persistenceapp-9cc3e.firebaseio.com",
-  projectId: "persistenceapp-9cc3e",
-  storageBucket: "persistenceapp-9cc3e.firebasestorage.app",
-  messagingSenderId: "469836792083",
-  appId: "1:469836792083:web:eda43b4bb25ebc25f45ae6"
+  apiKey: "AIzaSyCtLXkUF0l4x_rClKD7PIfdub8AoOSKt3w",
+  authDomain: "cen3332025.firebaseapp.com",
+  databaseURL: "https://cen3332025-default-rtdb.firebaseio.com",
+  projectId: "cen3332025",
+  storageBucket: "cen3332025.firebasestorage.app",
+  messagingSenderId: "918062688511",
+  appId: "1:918062688511:web:e5fae9733188d4176244ca",
+  measurementId: "G-FL6EZLYK3F"
 };
-
 
 
 interface InformedMarker{
@@ -25,6 +25,7 @@ interface InformedMarker{
   title: string; 
   subtitle: string; 
   info: string; 
+  key?: string; 
 };
 
 interface CircularObjects{
@@ -43,7 +44,7 @@ interface CircularObjects{
 })
 export class TrackerdevComponent implements OnInit{
 
-  @ViewChildren(MapMarker) markers!: QueryList<MapMarker>;
+  @ViewChildren(MapMarker) markers!: QueryList<MapMarker>; 
   @ViewChildren(MapInfoWindow) infoWindows!: QueryList<MapInfoWindow>;
   @ViewChildren(MapCircle) circles!: QueryList<MapCircle>;
   
@@ -54,15 +55,16 @@ export class TrackerdevComponent implements OnInit{
   informedMakerlist: InformedMarker[]; 
   circleList: CircularObjects[];
 
-  title: string;
+   title: string; 
   subtitle: string; 
   info: string; 
-
+ 
   directionResults$: Observable<google.maps.DirectionsResult|undefined>;
 
   db: any;
+//inject the service  named ghazalService
+  constructor(private ghazalService:GhazalService){
 
-  constructor(public mapDirectionsService: MapDirectionsService){
     this.currentlocation = {lat: 0, lng: 0};
     this.mapcenter = {lat: 0, lng: 0};
     this.clicklocation = {lat: 0, lng: 0};
@@ -78,10 +80,19 @@ export class TrackerdevComponent implements OnInit{
     
     this.db = getDatabase(initializeApp(firebaseConfig));
 
-    onValue(ref(this.db,'interestinglocations'),(data:DataSnapshot)=>{
-        this.informedMakerlist = [];
-        this.informedMakerlist = Object.values(data.val()) as InformedMarker[];
-    });
+onValue(ref(this.db, 'interestinglocations'), (data: DataSnapshot) => {
+  this.informedMakerlist = [];
+  const items = data.val();
+  if (items) { 
+    for (const key in items) {
+      this.informedMakerlist.push({
+        ...items[key],
+        key: key
+      });
+    }
+  }
+});
+ 
 
   }
   ngOnInit() {
@@ -118,10 +129,12 @@ export class TrackerdevComponent implements OnInit{
     }
     return this.mapDirectionsService.route(request).pipe(map(response=>response.result))
   }
+
   getCurrentLocation(): Promise<{lat: number, lng: number}>{
     return new Promise((resolve,reject)=>{
       navigator.geolocation.getCurrentPosition((data)=>{
         const location = {lat: data.coords.latitude, lng: data.coords.longitude};
+        this.currentlocation = location;
         resolve(location);
       },(error)=>{
         reject(error);
@@ -129,7 +142,7 @@ export class TrackerdevComponent implements OnInit{
     });
   }
   openInfoMarker(i: number, marker: MapMarker){
-    const infoWindow = this.infoWindows.toArray()[i];
+   const infoWindow = this.infoWindows.toArray()[i];
     if(infoWindow)
       infoWindow.open(marker);
   }
@@ -147,9 +160,14 @@ export class TrackerdevComponent implements OnInit{
   }
 
   removeMarker(informedMarker:InformedMarker){
-    const indexToRemove = this.informedMakerlist.indexOf(informedMarker);
-    if(indexToRemove!=-1)
-      this.informedMakerlist.splice(indexToRemove,1);
+   
+      this.informedMakerlist.splice(this.informedMakerlist.indexOf(informedMarker),1);
+
+     if (informedMarker.key) {
+      remove(ref(this.db, `interestinglocations/${informedMarker.key}`))
+        .then(() => console.log('Marker removed from Firebase'))
+        .catch((err) => console.error('Failed to remove from Firebase:', err));
+    }
   }
 
   circleClicked(circle:any){
@@ -165,17 +183,18 @@ export class TrackerdevComponent implements OnInit{
   }
   
   changeColor(colorString:string){
-    const mapCircle = this.circles.get(0);
+   this.circles.forEach((mapCircle)=>{
     if (mapCircle?.circle) {
       mapCircle.circle.setOptions({
-        fillColor: colorString  // new color
+        fillColor: colorString  
       });
     } else 
       console.warn('Circle is not yet initialized.');
+  })
     
   }
   closeAllWindow(){
-    this.infoWindows.forEach((informedWindow)=>{informedWindow.close()});
+    this.infoWindows.forEach(informedWindow=>informedWindow.close());
   }
 
   adjustMap(location:any, zoom: number){
@@ -202,3 +221,4 @@ export class TrackerdevComponent implements OnInit{
   }
 
 }
+

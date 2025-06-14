@@ -28,8 +28,7 @@ export class SideeffectsComponent {
   }
   constructor(public httpClient: HttpClient){
     this.medicine = "";
-    const firebaseApp = initializeApp(environment);
-    this.db = getDatabase(firebaseApp);
+    this.db = getDatabase(initializeApp(environment));
     this.epc = "";
     this.sideeffects = [];
     this.chartOptions = {
