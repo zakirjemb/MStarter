@@ -65,7 +65,7 @@ export class TrackerdevComponent implements OnInit{
 //inject the service  named ghazalService
   constructor(private ghazalService:GhazalService){
 
-    this.currentlocation = {lat: 0, lng: 0};
+    this.currentlocation = {lat: 0, lng: 0};=
     this.mapcenter = {lat: 0, lng: 0};
     this.clicklocation = {lat: 0, lng: 0};
     this.zoom = 4;
